@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
+        android:name=".ContactApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,11 +16,6 @@
         <activity
             android:name=".ui.DetailsActivty"
             android:exported="false" />
-        <activity
-            android:name=".ui.DetailsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_details"
-            android:theme="@style/Theme.ContactManagerGroupe1" />
         <activity
             android:name=".ui.AddEditActivity"
             android:exported="false" />
