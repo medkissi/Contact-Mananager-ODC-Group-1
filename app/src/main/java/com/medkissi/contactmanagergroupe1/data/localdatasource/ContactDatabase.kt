@@ -14,8 +14,8 @@ abstract class ContactDatabase : RoomDatabase() {
         var INSTANCE: ContactDatabase? = null
 
         fun getDatabaseInstance(context: Context): ContactDatabase {
-            var instance = INSTANCE
-            if (instance == null) {
+
+            if (INSTANCE== null) {
                 synchronized(this) {
                     INSTANCE = Room.databaseBuilder(
                         context.applicationContext,
@@ -25,7 +25,6 @@ abstract class ContactDatabase : RoomDatabase() {
                         .fallbackToDestructiveMigration()
                         .build()
 
-                    instance = INSTANCE
 
                 }
 
