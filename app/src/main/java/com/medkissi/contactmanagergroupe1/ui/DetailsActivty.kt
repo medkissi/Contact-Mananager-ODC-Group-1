@@ -24,7 +24,7 @@ class DetailsActivty : AppCompatActivity() {
         val email = findViewById<TextView>(R.id.textView_email)
         val fab = findViewById<FloatingActionButton>(R.id.floatingActionButton)
 
-        val data = intent.getSerializableExtra(CONTACT_KEY) as Contact
+        val data = intent.getSerializableExtra(CONTACT_TO_SAVE) as Contact
 
         nom.text = data.nomComplet
         tel.text = data.telephone
