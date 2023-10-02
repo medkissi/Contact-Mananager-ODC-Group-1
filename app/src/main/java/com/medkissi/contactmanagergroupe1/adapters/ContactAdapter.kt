@@ -1,9 +1,9 @@
 package com.medkissi.contactmanagergroupe1.adapters
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,16 +11,17 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.medkissi.contactmanagergroupe1.R
 import com.medkissi.contactmanagergroupe1.data.model.Contact
+import com.medkissi.contactmanagergroupe1.ui.MainActivity
+import de.hdodenhof.circleimageview.CircleImageView
 
 class ContactAdapter(
-    val listner: OnContactClickListner
+    val listner: MainActivity
 ) : ListAdapter<Contact, ContactAdapter.ContactViewHolder>(ContactDiff()) {
 
     inner class ContactViewHolder(itemView: View) : ViewHolder(itemView.rootView) {
+        // pour le recycle view
         val nomComplet = itemView.findViewById<TextView>(R.id.nom)
-        val telephone = itemView.findViewById<TextView>(R.id.textView2)
-        val deteteBtn = itemView.findViewById<ImageView>(R.id.btn_delete)
-        val updateBtn = itemView.findViewById<ImageView>(R.id.btn_update)
+        val image = itemView.findViewById<CircleImageView>(R.id.circleImageView)
 
         init {
             itemView.setOnClickListener {
@@ -29,20 +30,11 @@ class ContactAdapter(
                     listner.onItemClick(contact)
                 }
             }
-            deteteBtn.setOnClickListener {
-                val contact = getItem(adapterPosition)
-                listner.onDeleteClick(contact)
-            }
-            updateBtn.setOnClickListener {
-                val contact = getItem(adapterPosition)
-                listner.onUpdateClick(contact)
-            }
         }
 
         fun bind(contact: Contact) {
             nomComplet.text = contact.nomComplet
-            telephone.text = contact.telephone
-
+            image.setImageURI(Uri.parse(contact.image))
         }
     }
 
@@ -72,7 +64,6 @@ class ContactDiff:DiffUtil.ItemCallback<Contact>(){
 
 interface OnContactClickListner {
     fun onItemClick(contact: Contact)
-    fun onDeleteClick(contact: Contact)
-    fun onUpdateClick(contact: Contact)
+
 }
 

@@ -15,9 +15,16 @@ interface ContactDao {
     fun getAllContacts(): LiveData<List<Contact>>
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertContact(contact: Contact)
-
+    @Query("SELECT * FROM contact_table WHERE nom_table LIKE '%' || :query || '%' OR telephone LIKE '%' || :query || '%'")
+    suspend fun getDaoSearch(query: String): List<Contact>
     @Delete
     suspend fun deleteContact(contact: Contact)
+    @Query("DELETE FROM contact_table")
+    suspend fun deleteAllContact()
+
     @Update
     suspend fun updateContact(contact: Contact)
+
+
+
 }

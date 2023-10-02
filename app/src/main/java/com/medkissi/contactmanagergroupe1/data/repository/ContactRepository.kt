@@ -19,8 +19,19 @@ class ContactRepository {
     suspend fun  deleteContact(contact:Contact){
         dao.deleteContact(contact)
     }
+
+    suspend fun  deleteAllContact(){
+        dao.deleteAllContact()
+    }
+
     suspend fun  updateContact(contact:Contact){
         dao.updateContact(contact)
     }
+
+    suspend fun getSearchContact(query: String): List<Contact> {
+        return dao.getDaoSearch(query)
+    }
+
+
 
 }

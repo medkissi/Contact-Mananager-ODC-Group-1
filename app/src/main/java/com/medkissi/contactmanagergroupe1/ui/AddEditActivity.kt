@@ -1,71 +1,145 @@
 package com.medkissi.contactmanagergroupe1.ui
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Patterns
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.View
 import android.widget.Button
-import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.textfield.TextInputLayout
 import com.medkissi.contactmanagergroupe1.R
-import com.medkissi.contactmanagergroupe1.data.localdatasource.ContactDatabase
 import com.medkissi.contactmanagergroupe1.data.model.Contact
-
-
+import com.medkissi.contactmanagergroupe1.databinding.ActivityAddEditBinding
+import de.hdodenhof.circleimageview.CircleImageView
 
 class AddEditActivity : AppCompatActivity() {
+    private  lateinit var  binding: ActivityAddEditBinding
     lateinit var nom: TextInputLayout
     lateinit var tel: TextInputLayout
     lateinit var email: TextInputLayout
+    lateinit var  images: CircleImageView
+    var  url : Uri? = null
+
+    val launcher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()){
+        url = it
+        images.setImageURI(url)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_edit)
+
+        binding = ActivityAddEditBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        /*    gestion des champs    */
+        nomFocusListener()
+        telephoneFocusListener()
+        emaiFocusListener()
+
         nom = findViewById<TextInputLayout>(R.id.text_nom)
         tel = findViewById<TextInputLayout>(R.id.text_tel)
         email = findViewById<TextInputLayout>(R.id.text_email)
+        images = findViewById<CircleImageView>(R.id.textView)
+        nom.requestFocus()
+
+        images.setOnClickListener {
+             launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        }
+
         val btnEnregister = findViewById<Button>(R.id.btn_save)
-            .setOnClickListener {
+        btnEnregister.setOnClickListener {
                 if (intent.hasExtra(CONTACT_TO_UPDATE)) {
-                    updateContact(
-
-                    )
+                    updateContact()
                 } else {
-                    saveContact()
-
+                    enregistrerContact()
                 }
-
-
             }
 
+        // bouton retour
+        val btnReturn = findViewById<ImageButton>(R.id.backSearch)
+        btnReturn.setOnClickListener {
+                finish()
+            }
+
+        // recuperer les information dans les champs pour modifier
         if (intent.hasExtra(CONTACT_TO_UPDATE)) {
             val contact = intent.getSerializableExtra(CONTACT_TO_UPDATE) as Contact
             nom.editText?.setText(contact.nomComplet)
             tel.editText?.setText(contact.telephone)
             email.editText?.setText(contact.email)
-
+            images.setImageURI(Uri.parse(contact.image))
         }
 
-
     }
+
+    private fun enregistrerContact() {
+        val validatenom = validatenom()
+        val validtelephone = validtelephone()
+        val validEmail = validEmail()
+
+        var message = ""
+        var isvalid = true
+
+        if (validatenom != null) {
+            message = "Name must have at least 3 chars."
+            nom.requestFocus()
+            isvalid = false
+        }
+
+        if (validtelephone != null) {
+            message = "Phone number is invalid"
+            tel.requestFocus()
+            isvalid = false
+        }
+
+        if (validEmail != null) {
+            message = "Email address is invalid"
+            email.requestFocus()
+            isvalid = false
+        }
+
+        if (isvalid) {
+            saveContact()
+        } else {
+            AlertDialog.Builder(this)
+                .setTitle("Errors in your form !!!!")
+                .setMessage(message)
+                .setPositiveButton("Okay") { _, _ ->
+                }
+                .show()
+        }
+    }
+
+
 
     private fun saveContact(){
 
         if (nom.editText?.text.toString().isNotEmpty() &&
             tel.editText?.text.toString().isNotEmpty() &&
             email.editText?.text.toString().isNotEmpty()
-
         ) {
             val contact = Contact(
                 nomComplet = nom.editText?.text.toString(),
                 telephone = tel.editText?.text.toString(),
-                email = email.editText?.text.toString()
-
+                email = email.editText?.text.toString(),
+                image = url.toString()
             )
             val intent = Intent(this,MainActivity::class.java)
 
             intent.putExtra(CONTACT_TO_SAVE,contact)
             setResult(RESULT_OK,intent)
             finish()
-
         }
     }
 
@@ -77,14 +151,121 @@ class AddEditActivity : AppCompatActivity() {
                 id =  data.id,
                 nomComplet =  nom.editText?.text.toString(),
                 email = email.editText?.text.toString(),
-                telephone =  tel.editText?.text.toString()
-
+                telephone =  tel.editText?.text.toString(),
+                image = url.toString()
             )
-            val intent = Intent(this,MainActivity::class.java)
+            val intent = Intent(this,DetailsActivty::class.java)
             intent.putExtra(UPDATED_CONTACT,contact)
             setResult(RESULT_OK, intent)
             finish()
-
         }
     }
+
+    private fun nomFocusListener() {
+        binding.nonEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.textNom.helperText = validatenom()
+            }
+        }
+    }
+    private fun validatenom(): String? {
+        val nomText = binding.nonEditText.text.toString()
+        if (nomText.length < 3) {
+            return "The name must have at least 3 characters."
+        }
+        return null
+    }
+    private fun emaiFocusListener() {
+        binding.emailEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused){
+                binding.textEmail.helperText = validEmail()
+            }
+        }
+    }
+
+    private fun validEmail(): String ? {
+        val emailText = binding.emailEditText.text.toString()
+        if (!Patterns.EMAIL_ADDRESS.matcher(emailText).matches()) {
+             return "Email address is invalid"
+        }
+        return null
+    }
+
+    private fun telephoneFocusListener() {
+        binding.phoneEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                val phoneText = s.toString()
+                if (phoneText.length >= 14) {
+                    binding.textTel.helperText = validtelephone()
+                   /* binding.phoneEditText.isEnabled = false*/
+                } else {
+                    binding.textTel.helperText = ""
+                   /* binding.phoneEditText.isEnabled = true*/
+                }
+            }
+        })
+
+        binding.phoneEditText.setOnFocusChangeListener { _, focused ->
+            if (!focused) {
+                binding.textTel.helperText = validtelephone()
+            }
+        }
+    }
+
+    private fun validtelephone(): String ? {
+        val phoneText = binding.phoneEditText.text.toString()
+        if (!phoneText.matches(".*[0-9].*" .toRegex())) {
+            return "Number reset"
+        }
+        if (phoneText.length >= 15 ) {
+            return "Phone number can exceed 15 caracters"
+        }
+        return null
+    }
 }
+
+
+
+/*   private fun invalidForm() {
+       var message = ""
+       if (binding.textNom.helperText != null)
+           message = "\nName : " + binding.textNom.helperText
+       if (binding.textTel.helperText != null)
+           message = "\nPhone : " + binding.textTel.helperText
+       if (binding.textEmail.helperText != null)
+           message = "\nEmail : " + binding.textEmail.helperText
+
+       AlertDialog.Builder(this)
+           .setTitle("Errors in you form")
+           .setMessage(message)
+           .setPositiveButton("Okay"){ _,_ ->
+           }
+           .show()
+   }
+*/
+/*   private fun resetForm() {
+       var message = ""
+       message = "Name : " + binding.nonEditText.text
+       message = "\nPhone : " + binding.phoneEditText.text
+       message = "\nEmail : " + binding.emailEditText.text
+
+      AlertDialog.Builder(this)
+          .setTitle(" Form")
+          .setMessage(message)
+          .setPositiveButton("Okay"){ _,_ ->
+        }
+   }*/
+
+    /* pour mettre un text a la place de l'image
+        val alternativeTextView = findViewById<TextView>(R.id.textView)
+
+        if (url != null) {
+            images.setImageURI(url)
+            alternativeTextView.visibility = View.GONE
+        } else {
+            images.visibility = View.GONE
+            alternativeTextView.visibility = View.VISIBLE
+        }*/

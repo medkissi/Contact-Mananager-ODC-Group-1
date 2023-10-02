@@ -1,7 +1,30 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
     <style name="Base.Theme.ContactManagerGroupe1" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <!-- Couleur primaire en mode clair -->
+        <!--<item name="colorPrimary">@color/bleuCiel</item>
+        <item name="colorPrimaryVariant">@color/bleuCiel</item>
+        <item name="colorOnPrimary">@color/white</item>-->
+
+
+        <item name="colorPrimaryDark">@color/blue_sky</item>
+        <item name="colorPrimary">@color/blue_sky_dark</item>
+        <item name="colorAccent">@color/blue_sky_accent</item>
+
+
+        <!-- Couleur secondaire en mode clair -->
+        <item name="colorSecondary">@color/white</item>
+        <item name="colorSecondaryVariant">@color/white</item>
+        <item name="colorOnSecondary">@color/black</item>
+
+        <!-- Couleur du texte -->
+       <!-- <item name="android:textColor">@color/black</item>-->
+
+        <!-- Status bar color -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
     </style>
+
+    <style name="Theme.ContactManagerGroupe1" parent="Base.Theme.ContactManagerGroupe1" />
+
 </resources>
