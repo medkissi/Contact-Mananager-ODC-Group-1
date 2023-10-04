@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import com.medkissi.contactmanagergroupe1.R
@@ -43,7 +44,7 @@ class DetailsActivty : AppCompatActivity() {
 
          // bouton update
          val btnUpdate = findViewById<ImageButton>(R.id.btn_update)
-             .setOnClickListener {
+             btnUpdate.setOnClickListener {
                  val intent = Intent(this, AddEditActivity::class.java)
                  intent.putExtra(CONTACT_TO_UPDATE, data)
                  // startActivity for result permet demarrer une activite et d'attendre un resultat
@@ -52,14 +53,14 @@ class DetailsActivty : AppCompatActivity() {
 
         // bouton retour
          val btnReturn = findViewById<ImageButton>(R.id.backSearch)
-             .setOnClickListener {
+             btnReturn.setOnClickListener {
                  finish()
              }
 
         // pour le bouton partage
         val btnPartage = findViewById<ImageButton>(R.id.btn_share)
         btnPartage.setOnClickListener {
-            val message = "There are the detail to contact:\n" +
+            val message = "Contact details :\n" +
                     "Nom : ${nom.text}\n" +
                     "Téléphone : ${tel.text}\n" +
                     "Email : ${email.text}"
@@ -68,7 +69,11 @@ class DetailsActivty : AppCompatActivity() {
             intent.type = "text/plain"
             intent.putExtra(Intent.EXTRA_TEXT, message)
 
-            startActivity(Intent.createChooser(intent, "Partager via..."))
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(Intent.createChooser(intent, "Partager via..."))
+            } else {
+                Toast.makeText(this, "Aucune application de partage disponible", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Le click sur l'email
@@ -115,7 +120,6 @@ class DetailsActivty : AppCompatActivity() {
         startActivity(intent)
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 2 && resultCode == RESULT_OK) {
@@ -143,6 +147,4 @@ class DetailsActivty : AppCompatActivity() {
             .setNegativeButton("No", null)
             .show()
     }
-
-
 }

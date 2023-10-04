@@ -19,6 +19,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isEmpty
+import androidx.core.view.isNotEmpty
 import com.google.android.material.textfield.TextInputLayout
 import com.medkissi.contactmanagergroupe1.R
 import com.medkissi.contactmanagergroupe1.data.model.Contact
@@ -30,7 +32,7 @@ class AddEditActivity : AppCompatActivity() {
     lateinit var nom: TextInputLayout
     lateinit var tel: TextInputLayout
     lateinit var email: TextInputLayout
-    lateinit var  images: CircleImageView
+    lateinit var images: CircleImageView
     var  url : Uri? = null
 
     val launcher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()){
@@ -72,7 +74,7 @@ class AddEditActivity : AppCompatActivity() {
                 finish()
             }
 
-        // recuperer les information dans les champs pour modifier
+        // recuperer les informations et pre-remplir les champs pour modifier
         if (intent.hasExtra(CONTACT_TO_UPDATE)) {
             val contact = intent.getSerializableExtra(CONTACT_TO_UPDATE) as Contact
             nom.editText?.setText(contact.nomComplet)
@@ -92,24 +94,29 @@ class AddEditActivity : AppCompatActivity() {
         var isvalid = true
 
         if (validatenom != null) {
-            message = "Name must have at least 3 chars."
+            message = "Name must have at least 3 characters."
             nom.requestFocus()
             isvalid = false
         }
 
         if (validtelephone != null) {
-            message = "Phone number is invalid"
+            message = "Phone number can't exceed 15 characters"
             tel.requestFocus()
             isvalid = false
         }
 
         if (validEmail != null) {
-            message = "Email address is invalid"
+            message = "Email address is invalid (email format)"
             email.requestFocus()
             isvalid = false
         }
 
         if (isvalid) {
+            if (url == null) {
+                // Récupérer l'URI de l'image par défaut depuis les ressources
+                val defaultImageUri = Uri.parse("android.resource://${packageName}/${R.drawable.b}")
+                url = defaultImageUri
+            }
             saveContact()
         } else {
             AlertDialog.Builder(this)
@@ -143,7 +150,6 @@ class AddEditActivity : AppCompatActivity() {
         }
     }
 
-
     private fun updateContact(){
         if (intent.hasExtra(CONTACT_TO_UPDATE)){
             val data  = intent.getSerializableExtra(CONTACT_TO_UPDATE) as Contact
@@ -152,7 +158,7 @@ class AddEditActivity : AppCompatActivity() {
                 nomComplet =  nom.editText?.text.toString(),
                 email = email.editText?.text.toString(),
                 telephone =  tel.editText?.text.toString(),
-                image = url.toString()
+                image = url?.toString() ?:data.image
             )
             val intent = Intent(this,DetailsActivty::class.java)
             intent.putExtra(UPDATED_CONTACT,contact)
@@ -168,13 +174,15 @@ class AddEditActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun validatenom(): String? {
         val nomText = binding.nonEditText.text.toString()
         if (nomText.length < 3) {
-            return "The name must have at least 3 characters."
+            return "Name field can't be empty"
         }
         return null
     }
+
     private fun emaiFocusListener() {
         binding.emailEditText.setOnFocusChangeListener { _, focused ->
             if (!focused){
@@ -186,7 +194,7 @@ class AddEditActivity : AppCompatActivity() {
     private fun validEmail(): String ? {
         val emailText = binding.emailEditText.text.toString()
         if (!Patterns.EMAIL_ADDRESS.matcher(emailText).matches()) {
-             return "Email address is invalid"
+             return "Email field can't be empty"
         }
         return null
     }
@@ -218,7 +226,7 @@ class AddEditActivity : AppCompatActivity() {
     private fun validtelephone(): String ? {
         val phoneText = binding.phoneEditText.text.toString()
         if (!phoneText.matches(".*[0-9].*" .toRegex())) {
-            return "Number reset"
+            return "Phone number can't be empty"
         }
         if (phoneText.length >= 15 ) {
             return "Phone number can exceed 15 caracters"
@@ -226,46 +234,3 @@ class AddEditActivity : AppCompatActivity() {
         return null
     }
 }
-
-
-
-/*   private fun invalidForm() {
-       var message = ""
-       if (binding.textNom.helperText != null)
-           message = "\nName : " + binding.textNom.helperText
-       if (binding.textTel.helperText != null)
-           message = "\nPhone : " + binding.textTel.helperText
-       if (binding.textEmail.helperText != null)
-           message = "\nEmail : " + binding.textEmail.helperText
-
-       AlertDialog.Builder(this)
-           .setTitle("Errors in you form")
-           .setMessage(message)
-           .setPositiveButton("Okay"){ _,_ ->
-           }
-           .show()
-   }
-*/
-/*   private fun resetForm() {
-       var message = ""
-       message = "Name : " + binding.nonEditText.text
-       message = "\nPhone : " + binding.phoneEditText.text
-       message = "\nEmail : " + binding.emailEditText.text
-
-      AlertDialog.Builder(this)
-          .setTitle(" Form")
-          .setMessage(message)
-          .setPositiveButton("Okay"){ _,_ ->
-        }
-   }*/
-
-    /* pour mettre un text a la place de l'image
-        val alternativeTextView = findViewById<TextView>(R.id.textView)
-
-        if (url != null) {
-            images.setImageURI(url)
-            alternativeTextView.visibility = View.GONE
-        } else {
-            images.visibility = View.GONE
-            alternativeTextView.visibility = View.VISIBLE
-        }*/

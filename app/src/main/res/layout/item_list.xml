@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
+    android:layout_margin="0.5dp"
     android:elevation="6dp"
     app:cardCornerRadius="10dp">
 
@@ -21,8 +21,10 @@
             android:layout_height="40dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:scaleType="centerCrop"
             android:src="@drawable/ibaseline_person_"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -34,10 +36,12 @@
             android:layout_height="0dp"
             android:layout_marginStart="7dp"
             android:layout_marginTop="12dp"
+            android:layout_marginBottom="12dp"
             android:fontFamily="@font/comfortaa"
             android:text="Mohamed"
             android:textSize="16sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/circleImageView"
             app:layout_constraintTop_toTopOf="parent" />
 
