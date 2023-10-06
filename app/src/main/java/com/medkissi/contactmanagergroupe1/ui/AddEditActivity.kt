@@ -177,7 +177,7 @@ class AddEditActivity : AppCompatActivity() {
 
     private fun validatenom(): String? {
         val nomText = binding.nonEditText.text.toString()
-        if (nomText.length < 3) {
+        if (nomText.length < 2) {
             return "Name field can't be empty"
         }
         return null

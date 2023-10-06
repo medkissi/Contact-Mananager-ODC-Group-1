@@ -114,11 +114,24 @@ class DetailsActivty : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun openGmailApp(email: String) {
+   /* private fun openGmailApp(email: String) {
         val gmailIntentUri = viewModel.generateGmailIntentUri(email)
         val intent = Intent(Intent.ACTION_VIEW, gmailIntentUri)
         startActivity(intent)
+    }*/
+
+    private fun openGmailApp(email: String) {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("mailto:")
+            putExtra(Intent.EXTRA_EMAIL, arrayOf(email)) // Pré-remplir le champ "To" avec l'adresse e-mail
+        }
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+           Toast.makeText(this,"No mailto app to corresponded", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
